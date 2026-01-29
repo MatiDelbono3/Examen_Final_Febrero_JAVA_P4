@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Configuración de conexión -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/PROG2_feb26_Delbono?serverTimezone=UTC</property>
+        <property name="hibernate.connection.username">MAATI</property>
+        <property name="hibernate.connection.password">UnanuevadeProg2</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Configuración de dialecto -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Configuración de autodetección de entidades -->
+        <property name="hibernate.archive.autodetection">class</property>
+
+        <!-- Configuración de cache -->
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
+
+        <!-- Mapeo de entidades -->
+        <mapping class="org.example.Model.Paciente"/>
+        <mapping class="org.example.Model.Cita"/>
+    </session-factory>
+</hibernate-configuration>
