@@ -2,8 +2,6 @@ package org.example.Entities;
 
 
 
-import java.time.LocalDate;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -20,10 +18,42 @@ public class Alumno {
     }
 
     public Alumno(String nombre, int DNI, boolean activo) {
-        this.nombre = nombre;
-        this.DNI = DNI;
-        this.Activo = activo;
+        this.setNombre(nombre);
+        this.setDNI(DNI);
+        this.setActivo(activo);
 
+    }
+
+    public int getIdAlumno() {
+        return idAlumno;
+    }
+
+    public void setIdAlumno(int idAlumno) {
+        this.idAlumno = idAlumno;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getDNI() {
+        return DNI;
+    }
+
+    public void setDNI(int DNI) {
+        this.DNI = DNI;
+    }
+
+    public boolean isActivo() {
+        return Activo;
+    }
+
+    public void setActivo(boolean activo) {
+        Activo = activo;
     }
 }
 

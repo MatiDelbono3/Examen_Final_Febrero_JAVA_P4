@@ -32,7 +32,7 @@ public class InscripcionFinalService {
     public void ActualizarNota(Integer idInscripcion, int Nota) {
 
         if (idInscripcion == null || idInscripcion <= 0) {
-            throw new IllegalArgumentException("ID de paciente no válido");
+            throw new IllegalArgumentException("ID de inscripcion no válido");
         }
 
 
@@ -40,5 +40,17 @@ public class InscripcionFinalService {
             throw new IllegalArgumentException("La nota debe estar entre 1 y 10");
         }
         inscripcionFinalDAO.ActualizarNotaInscripcion(idInscripcion, Nota);
+    }
+    public List<Object[]> obtenerPromedioNotaPorMateria() {
+
+        Object InscripcionFinal = new Object();
+        List<Object[]> resultados =
+                inscripcionFinalDAO.ObtenerPromedioNotaPorMateria();
+
+        if (resultados == null || resultados.isEmpty()) {
+            throw new RuntimeException("No hay inscripciones cargadas");
+        }
+
+        return resultados;
     }
 }

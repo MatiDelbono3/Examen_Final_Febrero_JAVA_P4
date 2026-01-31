@@ -33,9 +33,16 @@ public class InscripcionFinalDAO {
             CriteriaBuilder builder =  session.getCriteriaBuilder();
             CriteriaQuery<InscripcionFinal> criteria = builder.createQuery(InscripcionFinal.class);
             Root<InscripcionFinal> root = criteria.from(InscripcionFinal.class);
-            criteria.orderBy(builder.desc(root.get("fecha")));
-            criteria.select(root);
+            List<jakarta.persistence.criteria.Predicate> predicates = new ArrayList<>();
+
+            if (idAlumno !=0 ){
+                predicates.add(builder.equal(root.get("idAlumno"), idAlumno));
+                criteria.orderBy(builder.desc(root.get("fecha")));
+                criteria.select(root);
+
+            }
             return session.createQuery(criteria).getResultList();
+
         }
     }
     public void ActualizarNotaInscripcion(Integer idInscripcion, int nota) {
@@ -51,12 +58,18 @@ public class InscripcionFinalDAO {
             e.printStackTrace();
         }
     }
-    public List<Object>ObtenerPromedioNotaPorMateria(List<InscripcionFinal>Inscripciones){
+    public List<Object[]>ObtenerPromedioNotaPorMateria(){
         try (Session session = HibernateUtils.getSession()) {
             CriteriaBuilder builder =  session.getCriteriaBuilder();
             CriteriaQuery<Object[]>cq= builder.createQuery(Object[].class);
-            List<Object>Resultados= Collections.singletonList(builder.createQuery().getResultType());
-            return Resultados;
+            Root<InscripcionFinal> root = cq.from(InscripcionFinal.class);
+            cq.multiselect(
+                            root.get("materia"),
+                            builder.avg(root.get("nota"))
+                    )
+                    .groupBy(root.get("materia"));
+
+            return session.createQuery(cq).getResultList();
     }
 
 }
@@ -64,8 +77,8 @@ public class InscripcionFinalDAO {
         CompletableFuture<List<DtoReporteInscripciones.EstadisticaAlumno>> inscripcionesPorAlumnoFuture = CompletableFuture.supplyAsync(() -> {
             try (Session session = HibernateUtils.getSession()) {
                 return session.createQuery(
-                                "SELECT new org.example.DTO.DtoReporteInscripciones.EstadisticaAlumno(i.IdAlumno, COUNT(i)) " +
-                                        "FROM Inscripciones i GROUP BY i.IdAlumno", DtoReporteInscripciones.EstadisticaAlumno.class)
+                                "SELECT new org.example.DTO.DtoReporteInscripciones.EstadisticaAlumno(i.alumno.IdAlumno, COUNT(i)) " +
+                                        "FROM InscripcionFinal i GROUP BY i.alumno.IdAlumno", DtoReporteInscripciones.EstadisticaAlumno.class)
                         .list();
             }
         });
@@ -74,7 +87,7 @@ public class InscripcionFinalDAO {
             try (Session session = HibernateUtils.getSession()) {
                 return session.createQuery(
                                 "SELECT new org.example.DTO.DtoReporteInscripciones.EstadisticaEstado(i.estado, COUNT(i)) " +
-                                        "FROM Inscripciones i GROUP BY i.estado", DtoReporteInscripciones.EstadisticaEstado.class)
+                                        "FROM InscripcionFinal i GROUP BY i.estado", DtoReporteInscripciones.EstadisticaEstado.class)
                         .list();
             }
         });
