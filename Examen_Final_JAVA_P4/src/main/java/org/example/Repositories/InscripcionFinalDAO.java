@@ -73,34 +73,51 @@ public class InscripcionFinalDAO {
     }
 
 }
-    public DtoReporteInscripciones generarReporteInscripciones() {
-        CompletableFuture<List<DtoReporteInscripciones.EstadisticaAlumno>> inscripcionesPorAlumnoFuture = CompletableFuture.supplyAsync(() -> {
-            try (Session session = HibernateUtils.getSession()) {
-                return session.createQuery(
-                                "SELECT new org.example.DTO.DtoReporteInscripciones.EstadisticaAlumno(i.alumno.IdAlumno, COUNT(i)) " +
-                                        "FROM InscripcionFinal i GROUP BY i.alumno.IdAlumno", DtoReporteInscripciones.EstadisticaAlumno.class)
-                        .list();
-            }
-        });
+    public List<DtoReporteInscripciones.EstadisticaAlumno>
+    obtenerEstadisticaPorAlumno() {
 
-        CompletableFuture<List<DtoReporteInscripciones.EstadisticaEstado>> inscripcionesPorEstadoFuture = CompletableFuture.supplyAsync(() -> {
-            try (Session session = HibernateUtils.getSession()) {
-                return session.createQuery(
-                                "SELECT new org.example.DTO.DtoReporteInscripciones.EstadisticaEstado(i.estado, COUNT(i)) " +
-                                        "FROM InscripcionFinal i GROUP BY i.estado", DtoReporteInscripciones.EstadisticaEstado.class)
-                        .list();
-            }
-        });
+        try (Session session = HibernateUtils.getSession()) {
 
-        CompletableFuture.allOf(inscripcionesPorAlumnoFuture, inscripcionesPorEstadoFuture).join();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<DtoReporteInscripciones.EstadisticaAlumno> cq =
+                    builder.createQuery(DtoReporteInscripciones.EstadisticaAlumno.class);
 
-        try {
-            List<DtoReporteInscripciones.EstadisticaAlumno> inscripcionesPorAlumno = inscripcionesPorAlumnoFuture.get();
-            List<DtoReporteInscripciones.EstadisticaEstado> inscripcionesPorEstado = inscripcionesPorEstadoFuture.get();
-            return new DtoReporteInscripciones(inscripcionesPorAlumno, inscripcionesPorEstado);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            Root<InscripcionFinal> root = cq.from(InscripcionFinal.class);
+
+            cq.select(
+                    builder.construct(
+                            DtoReporteInscripciones.EstadisticaAlumno.class,
+                            root.get("alumno").get("idAlumno"),
+                            builder.count(root)
+                    )
+            );
+
+            cq.groupBy(root.get("alumno").get("idAlumno"));
+            return session.createQuery(cq).getResultList();
         }
+
+}
+    public List<DtoReporteInscripciones.EstadisticaEstado>
+    obtenerEstadisticaPorEstado() {
+
+        try (Session session = HibernateUtils.getSession()) {
+
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<DtoReporteInscripciones.EstadisticaEstado> cq =
+                    builder.createQuery(DtoReporteInscripciones.EstadisticaEstado.class);
+
+            Root<InscripcionFinal> root = cq.from(InscripcionFinal.class);
+
+            cq.select(
+                    builder.construct(
+                            DtoReporteInscripciones.EstadisticaEstado.class,
+                            root.get("estado"),
+                            builder.count(root)
+                    )
+            );
+
+            cq.groupBy(root.get("estado"));
+            return session.createQuery(cq).getResultList();
+}
     }
 }

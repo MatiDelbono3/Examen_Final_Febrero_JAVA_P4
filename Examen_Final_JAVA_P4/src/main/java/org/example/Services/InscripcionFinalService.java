@@ -1,7 +1,9 @@
 package org.example.Services;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import org.example.DTO.DtoReporteInscripciones;
 import org.example.Entities.InscripcionFinal;
 import org.example.Repositories.InscripcionFinalDAO;
 
@@ -52,5 +54,24 @@ public class InscripcionFinalService {
         }
 
         return resultados;
+    }
+    public DtoReporteInscripciones generarReporteInscripciones() {
+
+        CompletableFuture<List<DtoReporteInscripciones.EstadisticaAlumno>> porAlumno =
+                CompletableFuture.supplyAsync(() -> inscripcionFinalDAO.obtenerEstadisticaPorAlumno());
+
+        CompletableFuture<List<DtoReporteInscripciones.EstadisticaEstado>> porEstado =
+                CompletableFuture.supplyAsync(() -> inscripcionFinalDAO.obtenerEstadisticaPorEstado());
+
+        CompletableFuture.allOf(porAlumno, porEstado).join();
+
+        try {
+            return new DtoReporteInscripciones(
+                    porAlumno.get(),
+                    porEstado.get()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error generando reporte", e);
+        }
     }
 }
